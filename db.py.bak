@@ -1,0 +1,48 @@
+import ibm_db
+import ibm_db_dbi
+import pandas as pd
+print("Creating connection.......")
+
+conn_string = "DATABASE=bludb;HOSTNAME=ba99a9e6-d59e-4883-8fc0-d6a8c9f7a08f.c1ogj3sd0tgtu0lqde00.databases.appdomain.cloud;PORT=31321;PROTOCOL=TCPIP;UID=xrl14403;PWD=lEbtvSLFGIUJwrhC;SECURITY=SSL"
+
+def databaseOn():
+    conn = ibm_db.connect(conn_string,"","")
+    if conn:
+        print("Connection ...... [SUCCESS]")
+    else:
+        print("Connection ...... [FAILURE]")
+def databaseOff():
+    ibm_db.close(conn)
+#pconn = ibm_db_dbi.Connection(conn)#connection for pandas
+
+
+conn = ibm_db.connect(conn_string,"","")
+if conn:
+    print("Connection ...... [SUCCESS]")
+else:
+    print("Connection ...... [FAILURE]")
+#dropQuery = "drop table Logins"#delete
+#dropStmt = ibm_db.exec_immediate(conn, dropQuery)
+    
+#createQuery = "create table Logins(USERNAME VARCHAR(50) PRIMARY KEY NOT NULL, PASSWORD VARCHAR(255) NOT NULL)"
+#createStmt = ibm_db.exec_immediate(conn, createQuery)
+
+    
+#insertQuery = "insert into LoginS values('2', '2')"
+#insertStmt = ibm_db.exec_immediate(conn, insertQuery)
+
+#insertQuery = "insert into LoginS values('1', '1')"
+#insertStmt = ibm_db.exec_immediate(conn, insertQuery)
+
+selectQuery = "select * from Logins"
+selectStmt = ibm_db.exec_immediate(conn, selectQuery)
+print(ibm_db.fetchone(selectStmt))
+
+#selectQuery = "select * from Login"
+#pdf = pd.read_sql(selectQuery, pconn)
+#pdf.LOGIN[0]
+
+
+ibm_db.close(conn)
+
+

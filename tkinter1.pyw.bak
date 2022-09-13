@@ -1,0 +1,219 @@
+import PySimpleGUI as sg
+import collections
+from collections import OrderedDict
+from firebase_admin import credentials, firestore
+import ibm_db
+
+#import firebase_admin
+#pip install pyrebase4
+import pyrebase
+#from firebase_admin import credentials, firestore
+import numpy as np
+#cred = credentials.Certificate(r"C:\Users\PICHAU\Desktop\pysimplegui\Nova pasta\spiritual-vent-199906-firebase-adminsdk-stzqd-8764b436f6.json")
+#firebase_admin.initialize_app(cred)
+#db = firestore.client()  # this connects to our Firestore database
+#collection = db.collection('programa')  # opens 'programa' collection
+#doc = collection.document('rome')  # specifies the 'rome' document
+#deletear collection.document('rome').delete()
+#collection.document('barcelona').update({ 'weather': firestore.DELETE_FIELD})
+
+
+firebaseConfig = {
+  "apiKey": "AIzaSyD-m4XCrn-csSJaxJF-c7neJXpVwtjzQGs",
+
+  "authDomain": "spiritual-vent-199906.firebaseapp.com",
+
+  "databaseURL": "https://spiritual-vent-199906-default-rtdb.firebaseio.com",
+
+  "projectId": "spiritual-vent-199906",
+
+  "storageBucket": "spiritual-vent-199906.appspot.com",
+
+  "messagingSenderId": "661585358491",
+
+  "appId": "1:661585358491:web:9f38ebc1228c76bd1f203e",
+
+  "measurementId": "G-9NMV3DB5VL"
+}
+
+firebase=pyrebase.initialize_app(firebaseConfig)
+db=firebase.database()
+#firestore_db = firestore.client()
+loginsucesso = False
+#dbproduto = result = db.child("Produto").get()
+
+#auth = firebase.auth()
+#storage = firebase.storage()
+
+#push data
+#data={"name":"John", "age":20, "adress":["new york", "los angeels"]}
+#db.child("Branch").child("Employee").child("male employes").push(data)
+#db.push(data)
+#data={"usuario":"12345","senha":"54321"} <<<<<<<
+#db.child("Logins").push(data)<<<<<<<<<<<<<
+#own key
+#data={"age":20, "adress":["new york", "los angeels"]}
+#db.child("John").set(data)
+#data={"senha":"54321"}
+#db.child("Logins").child("12345").set(data)
+
+#retrieve
+#users=db.child("Logins").get()
+#result = db.child("Logins").order_by_child("usuario").equal_to("12345").get()
+#if result is not None:
+#    print(result.val())
+#    pasword = db.child("Logins").order_by_child("senha").equal_to("54321").get()
+#    if pasword is not None:
+#        print("senha e pass correto")
+
+#for user in users.each():
+#    if users.val() == "12345":
+#        print('found')
+
+
+
+def login():
+
+    sg.set_options(keep_on_top=False)
+    sg.theme('LightBrown11')
+    telalogin = [
+
+    [sg.Text('Usuario'), sg.Input(key='usuario')],
+    [sg.Text('Senha'), sg.Input(key='senha')],
+    [sg.Button('Login')],
+    [sg.Button('Cadastrar Usuario')]
+
+    ]
+    return sg.Window('Login', layout=telalogin, finalize=True)
+def cadastrousuario():
+    cadastrousuario = [
+        [sg.Text('Usuario')],
+        [sg.Input(key='usuario')],
+        [sg.Text('Senha')],
+        [sg.Input(key='senha')],
+        [sg.Checkbox('Administrador')],
+        [sg.Button('Cadastrar')]
+    ]
+    return sg.Window('Cadastro de Usuario', layout=cadastrousuario, finalize=True)
+def telaestoque():
+    sg.set_options(auto_size_buttons=True)
+    sg.theme('Reddit')
+
+    telaestoque = [
+        [sg.Text('Nome')],
+        [sg.Input(key='nomeproduto')],
+        [sg.Combo(['Bombona', 'Litros', 'Pacote'],size=(10,1))],
+        [sg.Button('Cadastrar produto'), ]
+    ]
+
+    colunas = ['Produto', 'Medida','asdad']
+    dbproduto = db.child("Produtos").get()
+    #[str(x) for x in range(len(data[0]))]
+    #print(type(dbprodu))
+    dbprodu = dbproduto.val()
+    x = db.child("Produtos").child('nome').get()
+    print(x.val())
+
+
+    #dbprodu = dict(dbprodu)
+    #dbprodu = dict(x)
+    print(type(dbprodu))
+    print(dbprodu)
+
+    layout = [
+        [sg.Table(values = x, headings=colunas, justification='right',
+     key='-TABLE-', auto_size_columns=True, row_height=30,max_col_width=30)]
+    ]#,key=dbprodu)
+
+    return sg.Window('Estoque', layout=layout, finalize=True,keep_on_top=True, resizable=True)
+
+def telacadastro():
+    sg.set_options(auto_size_buttons=True)
+    sg.theme('Black')
+
+    telacadastro = [
+        [sg.Text('Nome')],
+        [sg.Input()],#key='nomeproduto'
+        [sg.Combo(['Bombona', 'Litros', 'Pacote'],size=(10,1))],
+        [sg.Button('Cadastrar produto')],
+        [sg.Button('Deletar Produto')]
+    ]
+    return sg.Window('Estoque', layout=telacadastro, finalize=True)
+def telainicial():
+    sg.theme('DarkPurple')
+    sg.set_options(auto_size_buttons=True)
+
+    telainicial = [
+
+        [sg.Button('Cadastro'),sg.Button('Estoque')],
+
+
+    ]
+
+    return sg.Window('Tela Inicial', layout=telainicial, finalize=True)
+
+janela1, janela2, janela3 = login(), None, None
+
+while True:
+    xx = np.random.randint(1,100)
+    window, event, values = sg.read_all_windows()
+    if event == sg.WIN_CLOSED: #FECHAR JANELA
+        if window == janela1:
+           break
+
+        if window == janela2:
+            janela1 = login()
+            janela2.close()
+
+        if window == janela3:
+            janela2 = telainicial()
+            janela3.close()
+
+    elif window == janela1 and event == 'Login': #BOTAO LOGIN TELA INICIAL
+
+        usuariologin = values['usuario']
+        passwordlogin = values['senha']
+
+        result = db.child("Logins").order_by_child("usuario").equal_to(usuariologin).limit_to_first(1).get()
+
+        if bool(result.val()) == True:
+
+            pasword = db.child("Logins").order_by_child("senha").equal_to(passwordlogin).limit_to_first(1).get()
+            if bool(pasword.val()) == True:
+                loginsucesso = True
+            else:
+                sg.popup("Password incorreto")
+
+        else:
+            sg.popup("Login incorreto")
+
+
+        if loginsucesso == True:
+            janela2 = telainicial()
+            janela1.close()
+            loginsucesso == False
+
+    elif window == janela1 and event == 'Cadastrar Usuario': #MUDAR PARA TELA CADASTRAR USUARIO BOTAO TELA INICIAL
+        janela2 = cadastrousuario()
+        janela1.close()
+
+    elif window == janela2 and event == 'Cadastrar': #CADASTRAR USUARIO TELA INICIAL
+        data={"usuario":values['usuario'],"senha":values['senha']}
+        db.child("Logins").push(data)
+        sg.popup('Usuario cadastrado com sucesso')
+
+    elif window == janela2 and event == 'Estoque': #MUDAR PARA TELA DE ESTOQUE
+        janela3 = telaestoque()
+        janela2.close()
+
+    elif window == janela2 and event == 'Cadastro': #MUDAR PARA TELA DE CADASTRO DE PRODUTO
+        janela3 = telacadastro()
+        janela2.close()
+
+    elif window == janela3 and event == 'Cadastrar produto': #CADASTRAR PRODUTO
+        data={"nome":values[0],"medida":values[0]}
+        db.child("Produtos").set(data)
+        sg.popup('Produto Cadastrado com Sucesso')
+
+    elif window == janela3 and event == 'Deletar Produto': #DELETAR PRODUTO
+        sg.popup("Produto Deletado Com Sucesso")
